@@ -29,9 +29,9 @@ var commands = {
     }
 };
 
-
 jQuery(function($, undefined) {
-    $('#terminal').terminal(function(command) {
+    var term = $('#terminal').terminal(function(command) {
+        localStorage.term = this;
         if (command !== '') {
             command = command.trim();
             if (commands[command] !== undefined) {
@@ -44,14 +44,7 @@ jQuery(function($, undefined) {
         }
     }, {
         completion: Object.keys(commands),
-        greetings: " ____  _                         ____                 _                 _ \n" +
-            "|  _ \\(_)                       / __ \\               | |               | |\n" +
-            "| |_) |_ _ __   __ _ _ __ _   _| |  | __   _____ _ __| | ___   __ _  __| |\n" +
-            "|  _ <| | '_ \\ / _` | '__| | | | |  | \\ \\ / / _ | '__| |/ _ \\ / _` |/ _` |\n" +
-            "| |_) | | | | | (_| | |  | |_| | |__| |\\ V |  __| |  | | (_) | (_| | (_| |\n" +
-            "|____/|_|_| |_|\\__,_|_|   \\__, |\\____/  \\_/ \\___|_|  |_|\\___/ \\__,_|\\__,_|\n" +
-            "                           __/ |                                          \n" +
-            "                          |___/                                           \n" +
+        greetings: getHeader() + 
             "[[b;;]Full-time student, programmer and tech enthusiast. Currently working on FlareBot]\n\n" +
             "Type [[b;lightblue;]whoami] to get information about me or [[b;lightblue;]help] to see all the commands you can do!",
         name: 'binaryoverload',
@@ -61,6 +54,19 @@ jQuery(function($, undefined) {
         clear: false,
         exit: false
     });
+    if (isMobile.any() || $(window).width() <= 739) {
+        swal("Mobile Device", "It looks like you are using a mobile device which might not work on this site!", "warning"
+        ,{
+            buttons: {
+                confirm: "Proceed",
+                cancel: "Exit",
+            }
+        }).then(function(value) {
+            if (value === null) {
+                window.location = "https://google.com";
+            }
+        });
+    }
 });
 
 function helpCommand(terminal) {
@@ -92,11 +98,10 @@ function echoFile(terminal, command) {
     function handleStateChange() {
         if (xhr.readyState === 4) {
             if (xhr.status == 200) {
-                console.log(xhr);
                 terminal.echo(xhr.responseText);
             }
+            terminal.resume();
         }
-        terminal.resume();
     }
 }
 
@@ -119,4 +124,40 @@ function maxCommandLength() {
 
 function formatCommand(maxLength, command, help) {
     return "[[;#6BBAEC;]" + command + "]" + " ".repeat((maxLength - command.length) + 5) + help;
+}
+
+var isMobile = {
+    Android: function() {
+        return navigator.userAgent.match(/Android/i);
+    },
+    BlackBerry: function() {
+        return navigator.userAgent.match(/BlackBerry/i);
+    },
+    iOS: function() {
+        return navigator.userAgent.match(/iPhone|iPad|iPod/i);
+    },
+    Opera: function() {
+        return navigator.userAgent.match(/Opera Mini/i);
+    },
+    Windows: function() {
+        return navigator.userAgent.match(/IEMobile/i);
+    },
+    any: function() {
+        return (isMobile.Android() || isMobile.BlackBerry() || isMobile.iOS() || isMobile.Opera() || isMobile.Windows());
+    }
+};
+
+function getHeader() {
+    if (window.innerWidth < 600) {
+        return "[[bu;lightblue;]BinaryOverload]\n\n";
+    } else {
+        return " ____  _                         ____                 _                 _ \n" +
+        "|  _ \\(_)                       / __ \\               | |               | |\n" +
+        "| |_) |_ _ __   __ _ _ __ _   _| |  | __   _____ _ __| | ___   __ _  __| |\n" +
+        "|  _ <| | '_ \\ / _` | '__| | | | |  | \\ \\ / / _ | '__| |/ _ \\ / _` |/ _` |\n" +
+        "| |_) | | | | | (_| | |  | |_| | |__| |\\ V |  __| |  | | (_) | (_| | (_| |\n" +
+        "|____/|_|_| |_|\\__,_|_|   \\__, |\\____/  \\_/ \\___|_|  |_|\\___/ \\__,_|\\__,_|\n" +
+        "                           __/ |                                          \n" +
+        "                          |___/                                           \n";
+    }
 }
