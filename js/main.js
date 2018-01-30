@@ -71,6 +71,7 @@ function whoamiCommand(terminal) {
 }
 
 function echoFile(terminal, command) {
+    terminal.pause();
     var xhr;
 
     xhr = new XMLHttpRequest();
@@ -85,6 +86,7 @@ function echoFile(terminal, command) {
                 terminal.echo(xhr.responseText);
             }
         }
+        terminal.resume();
     }
 }
 
