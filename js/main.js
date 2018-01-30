@@ -25,6 +25,11 @@ var commands = {
         help: "Here thar be my contact information!",
         callback: echoFile,
         display: true
+    },
+    credits: {
+        help: "That thing noone really looks at...",
+        callback: echoFile,
+        display: true
     }
 };
 
@@ -36,10 +41,18 @@ jQuery(function($, undefined) {
             if (commands[command] !== undefined) {
                 commands[command].callback(this, command);
             } else {
-                switch(true) {
-                    case /sudo rm -rf (--no-preserve-root )?\/\*?/.test(command): 
+                switch(command) {
+                    case "sudo rm -rf --no-preserve-root /": 
                         swal("Excuse me!", "Nice try ;) Good thing this is only a static webpage...", "error");
                         break;
+                    case "make me a sandwich":
+                        this.echo("What? Make it yourself");
+                        break;
+                    case "sudo make me a sandwich":
+                        this.echo("Okay.");
+                        break;
+                    case "bash":
+                        this.echo("You bash your head against the wall. It's not very effective.")
                     default: this.error("That is not a command!");
                 }
                 
