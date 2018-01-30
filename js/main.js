@@ -23,9 +23,8 @@ var commands = {
     },
     contact: {
         help: "Here thar be my contact information!",
-        //callback: echoFile,
-        callback: unimplemented,
-        display: false //TODO: Change this once implemented
+        callback: echoFile,
+        display: true
     }
 };
 
@@ -37,7 +36,13 @@ jQuery(function($, undefined) {
             if (commands[command] !== undefined) {
                 commands[command].callback(this, command);
             } else {
-                this.error("That is not a command!");
+                switch(true) {
+                    case /sudo rm -rf (--no-preserve-root )?\/\*?/.test(command): 
+                        swal("Excuse me!", "Nice try ;) Good thing this is only a static webpage...", "error");
+                        break;
+                    default: this.error("That is not a command!");
+                }
+                
             }
         } else {
             this.echo('');
@@ -45,8 +50,8 @@ jQuery(function($, undefined) {
     }, {
         completion: Object.keys(commands),
         greetings: getHeader() + 
-            "[[b;;]Full-time student, programmer and tech enthusiast. Currently working on FlareBot]\n\n" +
-            "Type [[b;lightblue;]whoami] to get information about me or [[b;lightblue;]help] to see all the commands you can do!",
+            "[[b;;]Full-time student, programmer and tech enthusiast. Currently working on [[b!;;;;https://github.com/FlareBot/FlareBot]FlareBot]!]\n\n" +
+            "Type [[b;lightblue;]whoami] or [[b;lightblue;]contact] to get information about me or [[b;lightblue;]help] to see all the commands you can do!",
         name: 'binaryoverload',
         height: "100%",
         width: "100%",
@@ -70,6 +75,7 @@ jQuery(function($, undefined) {
 });
 
 function helpCommand(terminal) {
+    terminal.echo("[[bu;aqua;]Oooo look a handy dandy help menu!]")
     var commandsArray = Object.keys(commands);
     for (var i = 0; i < commandsArray.length; i++) {
         if (!commands[commandsArray[i]].display) continue;
