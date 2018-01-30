@@ -42,6 +42,7 @@ jQuery(function($, undefined) {
                 commands[command].callback(this, command);
             } else {
                 switch(command) {
+                    // TODO: Change this to an object
                     case "sudo rm -rf --no-preserve-root /": 
                         swal("Excuse me!", "Nice try ;) Good thing this is only a static webpage...", "error");
                         break;
