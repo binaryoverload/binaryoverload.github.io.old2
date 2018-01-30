@@ -17,9 +17,15 @@ var commands = {
         display: true
     },
     whoami: {
-        help: "Displays contact information about me!",
+        help: "Displays some information about me!",
         callback: echoFile,
         display: true
+    },
+    contact: {
+        help: "Here thar be my contact information!",
+        //callback: echoFile,
+        callback: unimplemented,
+        display: false //TODO: Change this once implemented
     }
 };
 
@@ -31,7 +37,7 @@ jQuery(function($, undefined) {
             if (commands[command] !== undefined) {
                 commands[command].callback(this, command);
             } else {
-                this.echo("[[b;red;]That is not a command!]")
+                this.error("That is not a command!");
             }
         } else {
             this.echo('');
@@ -68,6 +74,10 @@ function helpCommand(terminal) {
 function whoamiCommand(terminal) {
     var string = "[[b;#17BEBB;]Hi there!]";
     terminal.echo(string);
+}
+
+function unimplemented(terminal) {
+    terminal.echo("[[bi;red;]This has yet to be implemented!!]");
 }
 
 function echoFile(terminal, command) {
