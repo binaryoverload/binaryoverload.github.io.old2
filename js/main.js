@@ -52,7 +52,8 @@ jQuery(function($, undefined) {
                         this.echo("Okay.");
                         break;
                     case "bash":
-                        this.echo("You bash your head against the wall. It's not very effective.")
+                        this.echo("You bash your head against the wall. It's not very effective.");
+                        break;
                     default: this.error("That is not a command!");
                 }
                 
