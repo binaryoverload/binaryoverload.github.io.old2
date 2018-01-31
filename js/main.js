@@ -37,6 +37,13 @@ var commands = {
         display: true,
         admin: true,
         password: "5f4dcc3b5aa765d61d8327deb882cf99"
+    },
+    node: {
+        help: "Hmmmm I wonder...",
+        callback: evalCommand,
+        display: true,
+        admin: true,
+        password: "5f4dcc3b5aa765d61d8327deb882cf99"
     }
 };
 
@@ -106,7 +113,7 @@ function helpCommand(terminal) {
     if (adminCommands.length > 0) {
         terminal.echo(" ");
     }
-    adminCommands.forEach(function(command) {
+    adminCommands.forEach(function (command) {
         terminal.echo(formatCommand(maxLength(Object.keys(commands)), command, commands[command].help) + " [[i;red;](Admins Only!)]");
     });
 }
@@ -116,6 +123,22 @@ function jokesCommand(terminal) {
         var formatJoke = "[[;#6BBAEC;]" + padding(maxLength(Object.keys(jokes)) + 5, joke) + "]";
         terminal.echo(formatJoke + jokes[joke]);
     })
+}
+
+function evalCommand(terminal) {
+    terminal.echo("Use [[b;lightblue;]exit] to quit eval mode! \n[[;orange;]With great power comes great responsibility!");
+    terminal.push(function (command, term) {
+        if (command.toLowerCase() === "exit") {
+            terminal.pop();
+            return;
+        }
+        var result = window.eval(command);
+        if (result != undefined) {
+            terminal.echo(String(result));
+        }
+    }, {
+        name: 'js'
+    });
 }
 
 function adminLogin(terminal, callback, command, password) {
