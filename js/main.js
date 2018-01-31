@@ -1,7 +1,7 @@
 var commands = {
     clear: {
         help: "Clears the terminal",
-        callback: function(terminal) {
+        callback: function (terminal) {
             terminal.clear();
             terminal.greetings();
         },
@@ -30,41 +30,43 @@ var commands = {
         help: "That thing noone really looks at...",
         callback: echoFile,
         display: true
+    },
+    jokes: {
+        help: "Displays all jokes",
+        callback: jokesCommand,
+        display: true,
+        admin: true
     }
 };
 
-jQuery(function($, undefined) {
-    var term = $('#terminal').terminal(function(command) {
+$.getJSON("jokes.json", "", function (data) {
+    window.jokes = data;
+});
+
+jQuery(function ($, undefined) {
+    var term = $('#terminal').terminal(function (command) {
         localStorage.term = this;
         if (command !== '') {
-            command = command.trim();
+            command = command.trim().toLowerCase();
             if (commands[command] !== undefined) {
-                commands[command].callback(this, command);
-            } else {
-                switch(command) {
-                    // TODO: Change this to an object
-                    case "sudo rm -rf --no-preserve-root /": 
-                        swal("Excuse me!", "Nice try ;) Good thing this is only a static webpage...", "error");
-                        break;
-                    case "make me a sandwich":
-                        this.echo("What? Make it yourself");
-                        break;
-                    case "sudo make me a sandwich":
-                        this.echo("Okay.");
-                        break;
-                    case "bash":
-                        this.echo("You bash your head against the wall. It's not very effective.");
-                        break;
-                    default: this.error("That is not a command!");
+                if (commands[command].admin) {
+                    adminLogin(this, commands[command].callback, command);
+                } else {
+                    commands[command].callback(this, command);
                 }
-                
+            } else if (jokes[command] !== undefined) {
+                this.echo(jokes[command]);
+            } else {
+                this.error("That is not a command!");
             }
+
+
         } else {
             this.echo('');
         }
     }, {
         completion: Object.keys(commands),
-        greetings: getHeader() + 
+        greetings: getHeader() +
             "[[b;;]Full-time student, programmer and tech enthusiast. Currently working on [[b!;;;;https://github.com/FlareBot/FlareBot]FlareBot]!]\n\n" +
             "Type [[b;lightblue;]whoami] or [[b;lightblue;]contact] to get information about me or [[b;lightblue;]help] to see all the commands you can do!",
         name: 'binaryoverload',
@@ -75,13 +77,12 @@ jQuery(function($, undefined) {
         exit: false
     });
     if (isMobile.any() || $(window).width() <= 739) {
-        swal("Mobile Device", "It looks like you are using a mobile device which might not work on this site!", "warning"
-        ,{
+        swal("Mobile Device", "It looks like you are using a mobile device which might not work on this site!", "warning", {
             buttons: {
                 confirm: "Proceed",
                 cancel: "Exit",
             }
-        }).then(function(value) {
+        }).then(function (value) {
             if (value === null) {
                 window.location = "https://google.com";
             }
@@ -92,9 +93,56 @@ jQuery(function($, undefined) {
 function helpCommand(terminal) {
     terminal.echo("[[bu;aqua;]Oooo look a handy dandy help menu!]")
     var commandsArray = Object.keys(commands);
+    var adminCommands = [];
     for (var i = 0; i < commandsArray.length; i++) {
         if (!commands[commandsArray[i]].display) continue;
-        terminal.echo(formatCommand(maxCommandLength(), commandsArray[i], commands[commandsArray[i]].help));
+        if (commands[commandsArray[i]].admin) {
+            adminCommands.push(commandsArray[i]);
+            continue;
+        }
+        terminal.echo(formatCommand(maxLength(Object.keys(commands)), commandsArray[i], commands[commandsArray[i]].help));
+    }
+    if (adminCommands.length > 0) {
+        terminal.echo(" ");
+    }
+    adminCommands.forEach(function(command) {
+        terminal.echo(formatCommand(maxLength(Object.keys(commands)), command, commands[command].help) + " [[i;red;](Admins Only!)]");
+    });
+}
+
+function jokesCommand(terminal) {
+    Object.keys(jokes).forEach(function (joke) {
+        var formatJoke = "[[;#6BBAEC;]" + padding(maxLength(Object.keys(jokes)) + 5, joke) + "]";
+        terminal.echo(formatJoke + jokes[joke]);
+    })
+}
+
+function adminLogin(terminal, callback, command) {
+    var passwordTries = 1;
+    terminal.push(function (cmd, term) {
+        if (md5(cmd) === "5f4dcc3b5aa765d61d8327deb882cf99") {
+            term.pop();
+            callback(terminal, command);
+        } else {
+            if (passwordTries < 3) {
+                term.error("Incorrect password!");
+                passwordTries++;
+            } else {
+                term.error("You have tried too many times!");
+                term.pop();
+            }
+        }
+    }, {
+        prompt: 'Enter Password: ',
+        name: 'adminLogin'
+    });
+}
+
+function padding(length, item) {
+    if (item.length >= length) {
+        return item;
+    } else {
+        return item + " ".repeat(length - item.length);
     }
 }
 
@@ -134,11 +182,11 @@ function remove(array, element) {
     }
 }
 
-function maxCommandLength() {
+function maxLength(array) {
     var maxLength = 0;
-    for (var i = 0; i < Object.keys(commands).length; i++) {
-        var command = Object.keys(commands)[i];
-        maxLength = Math.max(command.length, maxLength);
+    for (var i = 0; i < array.length; i++) {
+        var item = array[i];
+        maxLength = Math.max(item.length, maxLength);
     }
     return maxLength;
 }
@@ -148,22 +196,22 @@ function formatCommand(maxLength, command, help) {
 }
 
 var isMobile = {
-    Android: function() {
+    Android: function () {
         return navigator.userAgent.match(/Android/i);
     },
-    BlackBerry: function() {
+    BlackBerry: function () {
         return navigator.userAgent.match(/BlackBerry/i);
     },
-    iOS: function() {
+    iOS: function () {
         return navigator.userAgent.match(/iPhone|iPad|iPod/i);
     },
-    Opera: function() {
+    Opera: function () {
         return navigator.userAgent.match(/Opera Mini/i);
     },
-    Windows: function() {
+    Windows: function () {
         return navigator.userAgent.match(/IEMobile/i);
     },
-    any: function() {
+    any: function () {
         return (isMobile.Android() || isMobile.BlackBerry() || isMobile.iOS() || isMobile.Opera() || isMobile.Windows());
     }
 };
@@ -173,12 +221,12 @@ function getHeader() {
         return "[[bu;lightblue;]BinaryOverload]\n\n";
     } else {
         return " ____  _                         ____                 _                 _ \n" +
-        "|  _ \\(_)                       / __ \\               | |               | |\n" +
-        "| |_) |_ _ __   __ _ _ __ _   _| |  | __   _____ _ __| | ___   __ _  __| |\n" +
-        "|  _ <| | '_ \\ / _` | '__| | | | |  | \\ \\ / / _ | '__| |/ _ \\ / _` |/ _` |\n" +
-        "| |_) | | | | | (_| | |  | |_| | |__| |\\ V |  __| |  | | (_) | (_| | (_| |\n" +
-        "|____/|_|_| |_|\\__,_|_|   \\__, |\\____/  \\_/ \\___|_|  |_|\\___/ \\__,_|\\__,_|\n" +
-        "                           __/ |                                          \n" +
-        "                          |___/                                           \n";
+            "|  _ \\(_)                       / __ \\               | |               | |\n" +
+            "| |_) |_ _ __   __ _ _ __ _   _| |  | __   _____ _ __| | ___   __ _  __| |\n" +
+            "|  _ <| | '_ \\ / _` | '__| | | | |  | \\ \\ / / _ | '__| |/ _ \\ / _` |/ _` |\n" +
+            "| |_) | | | | | (_| | |  | |_| | |__| |\\ V |  __| |  | | (_) | (_| | (_| |\n" +
+            "|____/|_|_| |_|\\__,_|_|   \\__, |\\____/  \\_/ \\___|_|  |_|\\___/ \\__,_|\\__,_|\n" +
+            "                           __/ |                                          \n" +
+            "                          |___/                                           \n";
     }
 }
