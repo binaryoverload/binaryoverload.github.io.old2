@@ -35,7 +35,8 @@ var commands = {
         help: "Displays all jokes",
         callback: jokesCommand,
         display: true,
-        admin: true
+        admin: true,
+        password: "5f4dcc3b5aa765d61d8327deb882cf99"
     }
 };
 
@@ -50,7 +51,7 @@ jQuery(function ($, undefined) {
             command = command.trim().toLowerCase();
             if (commands[command] !== undefined) {
                 if (commands[command].admin) {
-                    adminLogin(this, commands[command].callback, command);
+                    adminLogin(this, commands[command].callback, command, commands[command].password);
                 } else {
                     commands[command].callback(this, command);
                 }
@@ -117,10 +118,10 @@ function jokesCommand(terminal) {
     })
 }
 
-function adminLogin(terminal, callback, command) {
+function adminLogin(terminal, callback, command, password) {
     var passwordTries = 1;
     terminal.push(function (cmd, term) {
-        if (md5(cmd) === "5f4dcc3b5aa765d61d8327deb882cf99") {
+        if (md5(cmd) === password) {
             term.pop();
             callback(terminal, command);
         } else {
