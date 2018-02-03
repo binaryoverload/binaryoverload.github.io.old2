@@ -35,17 +35,27 @@ var commands = {
         help: "Displays all jokes",
         callback: jokesCommand,
         display: true,
-        admin: true,
-        password: "5f4dcc3b5aa765d61d8327deb882cf99"
+        admin: true
     },
     node: {
         help: "Hmmmm I wonder...",
         callback: evalCommand,
         display: true,
-        admin: true,
-        password: "5f4dcc3b5aa765d61d8327deb882cf99"
+        admin: true
+    },
+    "-i": {
+        help: "",
+        callback: elevateCommand,
+        admin: true
+    },
+    su: {
+        help: "",
+        callback: elevateCommand,
+        admin: true
     }
 };
+
+var userPassword = "9cc2ae8a1ba7a93da39b46fc1019c481";
 
 $.getJSON("jokes.json", "", function (data) {
     window.jokes = data;
@@ -53,12 +63,18 @@ $.getJSON("jokes.json", "", function (data) {
 
 jQuery(function ($, undefined) {
     var term = $('#terminal').terminal(function (command) {
-        localStorage.term = this;
         if (command !== '') {
             command = command.trim().toLowerCase();
-            if (commands[command] !== undefined) {
+            if (command.startsWith("sudo") && commands[command.substring(5)] !== undefined) {
+                var actualCommand = command.substring(5);
+                if (commands[actualCommand].admin) {
+                    adminLogin(this, commands[actualCommand].callback, command, userPassword);
+                } else {
+                    commands[actualCommand].callback(this, command);
+                }
+            } else if (commands[command] !== undefined) {
                 if (commands[command].admin) {
-                    adminLogin(this, commands[command].callback, command, commands[command].password);
+                    this.error("You do not have permission to use this command!");
                 } else {
                     commands[command].callback(this, command);
                 }
@@ -67,8 +83,6 @@ jQuery(function ($, undefined) {
             } else {
                 this.error("That is not a command!");
             }
-
-
         } else {
             this.echo('');
         }
@@ -80,7 +94,7 @@ jQuery(function ($, undefined) {
         name: 'binaryoverload',
         height: "100%",
         width: "100%",
-        prompt: '> ',
+        prompt: 'guest@binaryoverload:~$ ',
         clear: false,
         exit: false
     });
@@ -137,7 +151,35 @@ function evalCommand(terminal) {
             terminal.echo(String(result));
         }
     }, {
+        prompt: "==> ",
         name: 'js'
+    });
+}
+
+function elevateCommand(terminal) {
+    terminal.push(function (command, term) {
+        if (command !== '') {
+            command = command.trim().toLowerCase();
+            if (command == "exit") {
+                term.pop();
+            } else if (command.startsWith("sudo") && commands[command.substring(5)] !== undefined) {
+                var actualCommand = command.substring(5);
+                commands[actualCommand].callback(this, command);
+            } else if (commands[command] !== undefined) {
+                commands[command].callback(this, command);
+            } else if (jokes["sudo " + command] !== undefined) {
+                this.echo(jokes["sudo " + command]);
+            } else if (jokes[command] !== undefined) {
+                this.echo(jokes[command]);
+            } else {
+                this.error("That is not a command!");
+            }
+        } else {
+            this.echo('');
+        }
+    }, {
+        prompt: 'root@binaryoverload:~# ',
+        name: 'root'
     });
 }
 
