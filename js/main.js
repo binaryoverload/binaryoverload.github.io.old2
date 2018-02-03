@@ -36,14 +36,14 @@ var commands = {
         callback: jokesCommand,
         display: true,
         admin: true,
-        password: "5f4dcc3b5aa765d61d8327deb882cf99"
+        password: "9cc2ae8a1ba7a93da39b46fc1019c481"
     },
     node: {
         help: "Hmmmm I wonder...",
         callback: evalCommand,
         display: true,
         admin: true,
-        password: "5f4dcc3b5aa765d61d8327deb882cf99"
+        password: "9cc2ae8a1ba7a93da39b46fc1019c481"
     }
 };
 
