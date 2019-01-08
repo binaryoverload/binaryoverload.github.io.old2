@@ -89,7 +89,7 @@ jQuery(function ($, undefined) {
     }, {
         completion: Object.keys(commands),
         greetings: getHeader() +
-            "[[b;;]Full-time student, programmer and tech enthusiast. Currently working on [[b!;;;;https://github.com/FlareBot/FlareBot]FlareBot]!]\n\n" +
+            "[[b;;]Full-time student, programmer and tech enthusiast.\n\n" +
             "Type [[b;lightblue;]whoami] or [[b;lightblue;]contact] to get information about me or [[b;lightblue;]help] to see all the commands you can do!",
         name: 'binaryoverload',
         height: "100%",
